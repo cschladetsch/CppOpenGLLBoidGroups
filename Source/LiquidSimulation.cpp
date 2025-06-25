@@ -8,7 +8,7 @@
 LiquidSimulation::LiquidSimulation(float width, float height)
     : width(width)
     , height(height)
-    , gravity(-0.5f)  // Gentle gravity for slow movement
+    , gravity(-2.0f)  // Moderate gravity
     , pressureConstant(2000.0f)
     , viscosityConstant(50.0f)
     , restDensity(1000.0f)
@@ -66,11 +66,11 @@ void LiquidSimulation::InitializeParticles() {
         
         // Position groups in a rectangle pattern
         float angle = (g / static_cast<float>(numGroups)) * 2.0f * M_PI;
-        float radius = 15.0f;
+        float radius = 8.0f;  // Smaller to fit in tighter bounds
         glm::vec3 groupCenter(
             cos(angle) * radius,
             1.5f,  // Keep in shallow space
-            sin(angle) * radius * 0.6f  // More rectangular distribution
+            sin(angle) * radius * 0.7f  // More rectangular distribution
         );
         
         // Create different compound shapes for each group
@@ -80,8 +80,8 @@ void LiquidSimulation::InitializeParticles() {
 
 void LiquidSimulation::InitializeWalls() {
     float wallHeight = 5.0f;  // Shallow box
-    float halfWidth = 30.0f;  // Wide rectangle
-    float halfDepth = 20.0f;  // Less deep than wide
+    float halfWidth = 15.0f;  // Tighter bounds for more interaction
+    float halfDepth = 10.0f;  // Tighter bounds
     
     // Front and back walls
     walls.emplace_back(glm::vec3(0.0f, wallHeight * 0.5f, -halfDepth), glm::vec3(halfWidth * 2, wallHeight, 1.0f));
@@ -253,13 +253,13 @@ void LiquidSimulation::UpdateCentroids(float deltaTime) {
         float noise3 = sin(t * 0.9f + i * 1.1f) + sin(t * 1.3f + i * 1.5f) * 0.5f;
         
         glm::vec3 targetVel(
-            noise1 * 1.5f,  // Remove random jitter
-            noise2 * 0.8f,
-            noise3 * 1.5f
+            noise1 * 5.0f,  // Faster movement
+            noise2 * 2.5f,
+            noise3 * 5.0f
         );
         
         // Smooth velocity transition
-        centroid.velocity += (targetVel - centroid.velocity) * deltaTime * 0.5f;
+        centroid.velocity += (targetVel - centroid.velocity) * deltaTime * 2.0f;
         centroid.position += centroid.velocity * deltaTime;
         
         // Keep centroids in bounds with soft boundaries
@@ -507,10 +507,10 @@ void LiquidSimulation::ApplyForces(float deltaTime) {
             cohesion = cohesion / totalWeight;
         }
         
-        force += separation * 20.0f;  // Gentler forces for slower movement
-        force += alignment * 10.0f;
-        force += cohesion * 5.0f;
-        force += centroidForce * 1.0f; // Gentle centroid following
+        force += separation * 50.0f;  // Stronger forces for faster movement
+        force += alignment * 25.0f;
+        force += cohesion * 15.0f;
+        force += centroidForce * 3.0f; // Stronger centroid following
         
         // Add 3D exploration force
         force += glm::vec3(
@@ -530,10 +530,10 @@ void LiquidSimulation::ApplyForces(float deltaTime) {
         particles[i].velocity += force * deltaTime / particles[i].mass;
         particles[i].velocity *= damping;
         
-        // Lower velocity limit for slower movement
+        // Higher velocity limit for faster movement
         float speed = glm::length(particles[i].velocity);
-        if (speed > 5.0f) {
-            particles[i].velocity = (particles[i].velocity / speed) * 5.0f;
+        if (speed > 15.0f) {
+            particles[i].velocity = (particles[i].velocity / speed) * 15.0f;
         }
     }
 }
@@ -585,8 +585,8 @@ void LiquidSimulation::ResolveCollisions() {
 void LiquidSimulation::HandleWallCollisions() {
     for (auto& particle : particles) {
         // Shallow rectangular boundaries
-        float halfWidth = 30.0f;  // Wide
-        float halfDepth = 20.0f;  // Less deep
+        float halfWidth = 15.0f;  // Match wall boundaries
+        float halfDepth = 10.0f;  // Match wall boundaries
         float maxHeight = 5.0f;   // Very shallow
         
         // X boundaries with reduced bounce
