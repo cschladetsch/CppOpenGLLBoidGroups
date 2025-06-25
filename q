@@ -1,6 +1,6 @@
-# 1. Switch to master branch and set remote
+# 1. Switch to master branch and set remote to git:// protocol
 git branch -M master
-git remote set-url origin https://github.com/cschladetsch/CppOpenGLLiquid.git
+git remote set-url origin git://github.com/cschladetsch/CppOpenGLLiquid.git
 
 # 2. Add all files
 git add .
@@ -17,5 +17,5 @@ git commit -m "Fix memory allocation issues and complete implementation
 - Add bounds checking for all particles and physics stability
 - All 16 tests now pass successfully"
 
-# 4. Push to GitHub
+# 4. Try to push (this will likely fail since git:// is read-only)
 git push --set-upstream origin master
