@@ -26,7 +26,15 @@ void main() {
     // Soft edges for merging
     float alpha = 1.0 - smoothstep(0.7, 1.0, dist);
     
-    // Ensure color is visible - minimum brightness
-    vec3 finalColor = max(FragColor * lighting, vec3(0.1));
-    FragColorOut = vec4(finalColor, alpha * 0.95);
+    // Enhanced color rendering with glow effect
+    vec3 finalColor = FragColor * lighting;
+    
+    // Add slight glow to center
+    float glow = 1.0 - dist;
+    finalColor += FragColor * glow * 0.3;
+    
+    // Ensure minimum brightness
+    finalColor = max(finalColor, FragColor * 0.2);
+    
+    FragColorOut = vec4(finalColor, alpha * 0.9);
 }

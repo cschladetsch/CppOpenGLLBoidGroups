@@ -82,11 +82,18 @@ int main(int argc, char* argv[]) {
     glDepthFunc(GL_LESS);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_POINT_SMOOTH);
-    glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+    // Remove GL_POINT_SMOOTH - it's deprecated and might cause the error
+    glEnable(GL_PROGRAM_POINT_SIZE);
     
-    auto camera = std::make_unique<Camera>(glm::vec3(0.0f, 40.0f, 0.0f));
+    // Top-down camera view
+    auto camera = std::make_unique<Camera>(glm::vec3(0.0f, 25.0f, 0.0f));
     camera->SetTopDownView();
+    
+    // Debug camera
+    glm::mat4 view = camera->GetViewMatrix();
+    glm::mat4 proj = camera->GetProjectionMatrix(16.0f/9.0f);
+    std::cout << "Camera at: (0, 25, 0)" << std::endl;
+    std::cout << "View matrix [3]: " << view[3][0] << ", " << view[3][1] << ", " << view[3][2] << std::endl;
     
     auto renderer = std::make_unique<Renderer>();
     auto liquidSim = std::make_unique<LiquidSimulation>(100.0f, 100.0f);
@@ -114,9 +121,22 @@ int main(int argc, char* argv[]) {
             accumulator -= targetFrameTime;
         }
         
-        glClearColor(0.1f, 0.1f, 0.2f, 1.0f);  // Dark blue background
+        // Set viewport
+        int width, height;
+        glfwGetFramebufferSize(window, &width, &height);
+        glViewport(0, 0, width, height);
+        
+        // Medium gray background
+        glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
+        // Test: Draw a simple triangle to verify rendering works
+        static int frameCount = 0;
+        if (frameCount++ == 0) {
+            std::cout << "First frame - viewport: " << WINDOW_WIDTH << "x" << WINDOW_HEIGHT << std::endl;
+        }
+        
+        // Render everything
         renderer->Begin(camera->GetViewMatrix(), camera->GetProjectionMatrix(static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT));
         renderer->RenderLiquid(*liquidSim);
         renderer->RenderWalls(liquidSim->GetWalls());

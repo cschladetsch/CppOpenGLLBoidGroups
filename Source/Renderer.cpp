@@ -74,14 +74,20 @@ void Renderer::Begin(const glm::mat4& view, const glm::mat4& projection) {
 
 void Renderer::RenderLiquid(const LiquidSimulation& simulation) {
     const auto& particles = simulation.GetParticles();
-    std::cout << "Rendering " << particles.size() << " particles" << std::endl;
-    if (particles.empty()) {
-        std::cout << "No particles to render!" << std::endl;
-        return;
-    }
+    if (particles.empty()) return;
     
     std::vector<float> vertexData;
     vertexData.reserve(particles.size() * 7);
+    
+    // Debug first particle only once
+    static bool debugged = false;
+    if (!debugged && !particles.empty()) {
+        debugged = true;
+        const auto& p = particles[0];
+        std::cout << "First particle: pos(" << p.position.x << "," << p.position.y << "," << p.position.z 
+                  << ") color(" << p.color.r << "," << p.color.g << "," << p.color.b 
+                  << ") radius=" << p.radius << std::endl;
+    }
     
     for (const auto& particle : particles) {
         vertexData.push_back(particle.position.x);
@@ -90,7 +96,7 @@ void Renderer::RenderLiquid(const LiquidSimulation& simulation) {
         vertexData.push_back(particle.color.r);
         vertexData.push_back(particle.color.g);
         vertexData.push_back(particle.color.b);
-        vertexData.push_back(particle.radius * 60.0f);
+        vertexData.push_back(particle.radius * 15.0f);  // Scaled for smaller blob radius
     }
     
     glUseProgram(liquidShader);
@@ -102,16 +108,8 @@ void Renderer::RenderLiquid(const LiquidSimulation& simulation) {
     glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), vertexData.data(), GL_DYNAMIC_DRAW);
     
     glEnable(GL_PROGRAM_POINT_SIZE);
-    glPointSize(10.0f);  // Fallback size
-    std::cout << "Drawing " << particles.size() << " points" << std::endl;
     glDrawArrays(GL_POINTS, 0, particles.size());
     glDisable(GL_PROGRAM_POINT_SIZE);
-    
-    // Check for OpenGL errors
-    GLenum err = glGetError();
-    if (err != GL_NO_ERROR) {
-        std::cout << "OpenGL error: " << err << std::endl;
-    }
     
     glBindVertexArray(0);
 }
@@ -171,10 +169,18 @@ GLuint Renderer::CompileShader(const std::string& vertexPath, const std::string&
 }
 
 GLuint Renderer::LoadShaderFromFile(const std::string& path, GLenum shaderType) {
+    std::cout << "Loading shader: " << path << std::endl;
     std::ifstream file(path);
     if (!file.is_open()) {
         std::cerr << "Failed to open shader file: " << path << std::endl;
-        return 0;
+        // Try from build directory
+        std::string buildPath = "build/" + path;
+        file.open(buildPath);
+        if (!file.is_open()) {
+            std::cerr << "Also failed to open: " << buildPath << std::endl;
+            return 0;
+        }
+        std::cout << "Found shader in build directory" << std::endl;
     }
     
     std::stringstream buffer;
