@@ -61,3 +61,21 @@ Or directly:
 ```
 
 The simulation will open in a window showing colored liquid blobs bounded by 3D walls from a top-down perspective. The walls feature aesthetically pleasing off-angle lighting for better visual depth.
+
+## Testing
+
+Run all unit tests:
+```bash
+./test
+```
+
+Or manually:
+```bash
+./build/CppLiquidTests
+```
+
+The test suite includes:
+- Liquid simulation physics tests
+- Camera projection and view tests  
+- Wall mesh generation tests
+- Boundary collision tests

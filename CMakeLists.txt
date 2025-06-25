@@ -75,3 +75,9 @@ target_include_directories(CppLiquidTests PRIVATE
 # Enable testing
 enable_testing()
 add_test(NAME CppLiquidTests COMMAND CppLiquidTests)
+
+# Copy shaders to build directory
+add_custom_command(TARGET CppLiquid POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/Shaders $<TARGET_FILE_DIR:CppLiquid>/Shaders
+)

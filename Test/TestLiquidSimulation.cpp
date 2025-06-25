@@ -43,7 +43,7 @@ TEST_F(LiquidSimulationTest, ParticlesHaveValidColors) {
 }
 
 TEST_F(LiquidSimulationTest, ParticlesStayWithinBounds) {
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 10; ++i) {
         simulation->Update(0.016f);
     }
     

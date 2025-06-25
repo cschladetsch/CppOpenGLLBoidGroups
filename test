@@ -1,0 +1,27 @@
+#!/bin/bash
+
+echo "Building and running tests..."
+
+# Build the project
+./b
+
+if [ $? -eq 0 ]; then
+    echo -e "\n==================== RUNNING TESTS ====================\n"
+    
+    # Run tests with color output
+    ./build/CppLiquidTests --gtest_color=yes
+    
+    TEST_RESULT=$?
+    
+    echo -e "\n======================================================="
+    
+    if [ $TEST_RESULT -eq 0 ]; then
+        echo -e "\n✅ All tests passed!"
+    else
+        echo -e "\n❌ Some tests failed!"
+        exit 1
+    fi
+else
+    echo "Build failed, cannot run tests"
+    exit 1
+fi

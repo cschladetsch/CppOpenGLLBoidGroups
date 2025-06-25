@@ -35,7 +35,7 @@ private:
     
     std::vector<LiquidParticle> particles;
     std::vector<Wall> walls;
-    boost::container::static_vector<size_t, 50> neighbors;
+    std::vector<size_t> neighbors;
     
     float width, height;
     float gravity;
