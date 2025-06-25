@@ -85,8 +85,8 @@ int main(int argc, char* argv[]) {
     // Remove GL_POINT_SMOOTH - it's deprecated and might cause the error
     glEnable(GL_PROGRAM_POINT_SIZE);
     
-    // Top-down camera view
-    auto camera = std::make_unique<Camera>(glm::vec3(0.0f, 25.0f, 0.0f));
+    // Top-down camera view positioned higher for better view
+    auto camera = std::make_unique<Camera>(glm::vec3(0.0f, 40.0f, 5.0f));
     camera->SetTopDownView();
     
     // Debug camera
@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
     std::cout << "View matrix [3]: " << view[3][0] << ", " << view[3][1] << ", " << view[3][2] << std::endl;
     
     auto renderer = std::make_unique<Renderer>();
-    auto liquidSim = std::make_unique<LiquidSimulation>(100.0f, 100.0f);
+    auto liquidSim = std::make_unique<LiquidSimulation>(30.0f, 20.0f); // Match wall boundaries
     
     std::cout << "Created simulation with " << liquidSim->GetParticles().size() << " particles" << std::endl;
     

@@ -74,8 +74,8 @@ private:
   std::uniform_int_distribution<int> percentDist; // 0 to 99
   
   float timeSinceLastSpawn;
-  const float spawnInterval = 0.5f; // Less frequent spawning to reduce chaos
-  const size_t maxParticles = 500; // Fewer particles for smoother movement
+  const float spawnInterval = 0.05f; // More frequent spawning for better coverage
+  const size_t maxParticles = 800; // More particles to fill the screen
   
   float globalTime; // Global time for synchronized animations
 };

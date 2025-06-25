@@ -5,7 +5,7 @@ Camera::Camera(const glm::vec3& position)
     , front(glm::normalize(glm::vec3(0.0f, -30.0f, -80.0f)))
     , up(0.0f, 1.0f, 0.0f)
     , right(1.0f, 0.0f, 0.0f)
-    , fov(60.0f)
+    , fov(75.0f) // Wider field of view
     , nearPlane(0.1f)
     , farPlane(200.0f) {
 }

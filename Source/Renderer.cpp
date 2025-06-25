@@ -96,7 +96,7 @@ void Renderer::RenderLiquid(const LiquidSimulation& simulation) {
         vertexData.push_back(particle.color.r);
         vertexData.push_back(particle.color.g);
         vertexData.push_back(particle.color.b);
-        vertexData.push_back(particle.radius * 15.0f);  // Scaled for smaller blob radius
+        vertexData.push_back(particle.radius * 40.0f);  // Scaled for better visibility
     }
     
     glUseProgram(liquidShader);

@@ -118,7 +118,7 @@ void LiquidSimulation::CreateCompoundShape(const glm::vec3& center, const glm::v
     switch (shapeType) {
     case 0: // Line shape
         {
-            int numSpheres = 8;
+            int numSpheres = 20; // More spheres for better coverage
             float spacing = 0.8f;  // 80% smaller spacing
             for (int i = 0; i < numSpheres; ++i) {
                 float t = (i - numSpheres/2.0f) * spacing;
@@ -131,7 +131,7 @@ void LiquidSimulation::CreateCompoundShape(const glm::vec3& center, const glm::v
         
     case 1: // Triangle shape
         {
-            int layers = 4;
+            int layers = 8; // More layers for bigger groups
             for (int layer = 0; layer < layers; ++layer) {
                 for (int i = 0; i <= layer; ++i) {
                     float x = (i - layer/2.0f) * 0.7f;  // 80% smaller
@@ -146,8 +146,8 @@ void LiquidSimulation::CreateCompoundShape(const glm::vec3& center, const glm::v
         
     case 2: // Ring shape
         {
-            int numSpheres = 12;
-            float ringRadius = 1.6f;  // 80% smaller
+            int numSpheres = 24; // More spheres in ring
+            float ringRadius = 2.5f;  // Bigger ring
             for (int i = 0; i < numSpheres; ++i) {
                 float angle = (i / static_cast<float>(numSpheres)) * 2.0f * M_PI;
                 glm::vec3 pos = center + glm::vec3(
@@ -163,7 +163,7 @@ void LiquidSimulation::CreateCompoundShape(const glm::vec3& center, const glm::v
         
     case 3: // Cross shape
         {
-            int armLength = 5;
+            int armLength = 10; // Longer arms
             // Horizontal arm
             for (int i = -armLength; i <= armLength; ++i) {
                 if (i != 0) { // Skip center to avoid duplicate
@@ -181,7 +181,7 @@ void LiquidSimulation::CreateCompoundShape(const glm::vec3& center, const glm::v
         
     default: // Cluster shape (default)
         {
-            int numSpheres = 15;
+            int numSpheres = 30; // More spheres in cluster
             for (int i = 0; i < numSpheres; ++i) {
                 float u = unitDist(rng);
                 float v = unitDist(rng);
