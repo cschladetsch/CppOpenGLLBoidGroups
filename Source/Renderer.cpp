@@ -8,11 +8,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 Renderer::Renderer() {
+    std::cout << "Loading shaders..." << std::endl;
     liquidShader = CompileShader("Shaders/liquid.vert", "Shaders/liquid.frag");
+    std::cout << "Liquid shader ID: " << liquidShader << std::endl;
     wallShader = CompileShader("Shaders/wall.vert", "Shaders/wall.frag");
+    std::cout << "Wall shader ID: " << wallShader << std::endl;
     
     InitializeLiquidBuffers();
     InitializeWallBuffers();
+    std::cout << "Renderer initialized" << std::endl;
 }
 
 Renderer::~Renderer() {
@@ -70,7 +74,11 @@ void Renderer::Begin(const glm::mat4& view, const glm::mat4& projection) {
 
 void Renderer::RenderLiquid(const LiquidSimulation& simulation) {
     const auto& particles = simulation.GetParticles();
-    if (particles.empty()) return;
+    std::cout << "Rendering " << particles.size() << " particles" << std::endl;
+    if (particles.empty()) {
+        std::cout << "No particles to render!" << std::endl;
+        return;
+    }
     
     std::vector<float> vertexData;
     vertexData.reserve(particles.size() * 7);
@@ -82,7 +90,7 @@ void Renderer::RenderLiquid(const LiquidSimulation& simulation) {
         vertexData.push_back(particle.color.r);
         vertexData.push_back(particle.color.g);
         vertexData.push_back(particle.color.b);
-        vertexData.push_back(particle.radius * 10.0f);
+        vertexData.push_back(particle.radius * 60.0f);
     }
     
     glUseProgram(liquidShader);
@@ -94,8 +102,16 @@ void Renderer::RenderLiquid(const LiquidSimulation& simulation) {
     glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), vertexData.data(), GL_DYNAMIC_DRAW);
     
     glEnable(GL_PROGRAM_POINT_SIZE);
+    glPointSize(10.0f);  // Fallback size
+    std::cout << "Drawing " << particles.size() << " points" << std::endl;
     glDrawArrays(GL_POINTS, 0, particles.size());
     glDisable(GL_PROGRAM_POINT_SIZE);
+    
+    // Check for OpenGL errors
+    GLenum err = glGetError();
+    if (err != GL_NO_ERROR) {
+        std::cout << "OpenGL error: " << err << std::endl;
+    }
     
     glBindVertexArray(0);
 }

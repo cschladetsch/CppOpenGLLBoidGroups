@@ -2,12 +2,12 @@
 
 Camera::Camera(const glm::vec3& position)
     : position(position)
-    , front(0.0f, -1.0f, 0.0f)
-    , up(0.0f, 0.0f, -1.0f)
+    , front(glm::normalize(glm::vec3(0.0f, -30.0f, -80.0f)))
+    , up(0.0f, 1.0f, 0.0f)
     , right(1.0f, 0.0f, 0.0f)
     , fov(60.0f)
     , nearPlane(0.1f)
-    , farPlane(100.0f) {
+    , farPlane(200.0f) {
 }
 
 void Camera::SetTopDownView() {

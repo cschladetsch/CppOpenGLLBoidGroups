@@ -9,8 +9,8 @@ cd build
 # Configure with CMake
 cmake -DCMAKE_BUILD_TYPE=Release ..
 
-# Build with all available cores
-make -j$(nproc)
+# Build with 16 cores
+make -j16
 
 # Check if build succeeded
 if [ $? -eq 0 ]; then

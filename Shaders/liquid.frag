@@ -13,8 +13,20 @@ void main() {
         discard;
     }
     
-    float alpha = 1.0 - smoothstep(0.7, 1.0, dist);
-    float centerIntensity = 1.0 - dist * 0.3;
+    // Create 3D sphere appearance
+    float z = sqrt(1.0 - dist * dist);
+    vec3 normal = normalize(vec3(coord, z));
     
-    FragColorOut = vec4(FragColor * centerIntensity, alpha * 0.8);
+    // Simple lighting
+    vec3 lightDir = normalize(vec3(0.3, 1.0, 0.5));
+    float diffuse = max(dot(normal, lightDir), 0.0);
+    float ambient = 0.3;
+    float lighting = ambient + diffuse * 0.7;
+    
+    // Soft edges for merging
+    float alpha = 1.0 - smoothstep(0.7, 1.0, dist);
+    
+    // Ensure color is visible - minimum brightness
+    vec3 finalColor = max(FragColor * lighting, vec3(0.1));
+    FragColorOut = vec4(finalColor, alpha * 0.95);
 }

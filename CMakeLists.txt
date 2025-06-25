@@ -19,10 +19,10 @@ find_path(GLM_INCLUDE_DIR glm/glm.hpp)
 
 # Create a shared library with all core functionality (excluding main.cpp)
 add_library(CppLiquidCore STATIC
-    Src/LiquidSimulation.cpp
-    Src/Camera.cpp
-    Src/Wall.cpp
-    Src/Renderer.cpp
+    Source/LiquidSimulation.cpp
+    Source/Camera.cpp
+    Source/Wall.cpp
+    Source/Renderer.cpp
 )
 
 # Set include directories for the core library
@@ -48,7 +48,7 @@ target_compile_options(CppLiquidCore PRIVATE
 )
 
 # Main executable
-add_executable(CppLiquid Src/main.cpp)
+add_executable(CppLiquid Source/main.cpp)
 target_link_libraries(CppLiquid PRIVATE CppLiquidCore)
 
 # Test executable - FIXED: Now properly links with CppLiquidCore

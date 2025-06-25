@@ -5,6 +5,7 @@
 #include <memory>
 #include <cstdlib>
 #include <string>
+#include <algorithm>
 #include "Renderer.h"
 #include "LiquidSimulation.h"
 #include "Camera.h"
@@ -49,6 +50,8 @@ int main(int argc, char* argv[]) {
         return -1;
     }
     
+    std::cout << "GLFW initialized successfully" << std::endl;
+    
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -71,27 +74,48 @@ int main(int argc, char* argv[]) {
         return -1;
     }
     
+    std::cout << "GLEW initialized successfully" << std::endl;
+    std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
+    std::cout << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+    
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_POINT_SMOOTH);
+    glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
     
-    auto camera = std::make_unique<Camera>(glm::vec3(0.0f, 10.0f, 0.0f));
+    auto camera = std::make_unique<Camera>(glm::vec3(0.0f, 40.0f, 0.0f));
     camera->SetTopDownView();
     
     auto renderer = std::make_unique<Renderer>();
     auto liquidSim = std::make_unique<LiquidSimulation>(100.0f, 100.0f);
     
+    std::cout << "Created simulation with " << liquidSim->GetParticles().size() << " particles" << std::endl;
+    
     double lastTime = glfwGetTime();
+    const double targetFrameTime = 1.0 / 60.0; // 60 FPS
+    const float fixedTimeStep = 1.0f / 60.0f;  // Fixed timestep for physics
+    double accumulator = 0.0;
     
     while (!glfwWindowShouldClose(window)) {
         double currentTime = glfwGetTime();
-        float deltaTime = static_cast<float>(currentTime - lastTime);
+        double frameTime = currentTime - lastTime;
         lastTime = currentTime;
         
-        glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // Cap frame time to prevent spiral of death
+        frameTime = std::min(frameTime, 0.25);
         
-        liquidSim->Update(deltaTime);
+        accumulator += frameTime;
+        
+        // Fixed timestep physics update
+        while (accumulator >= targetFrameTime) {
+            liquidSim->Update(fixedTimeStep);
+            accumulator -= targetFrameTime;
+        }
+        
+        glClearColor(0.1f, 0.1f, 0.2f, 1.0f);  // Dark blue background
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         renderer->Begin(camera->GetViewMatrix(), camera->GetProjectionMatrix(static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT));
         renderer->RenderLiquid(*liquidSim);
