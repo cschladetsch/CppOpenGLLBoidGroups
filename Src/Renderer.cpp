@@ -7,8 +7,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 Renderer::Renderer() {
-    liquidShader = CompileShader("shaders/liquid.vert", "shaders/liquid.frag");
-    wallShader = CompileShader("shaders/wall.vert", "shaders/wall.frag");
+    liquidShader = CompileShader("Shaders/liquid.vert", "Shaders/liquid.frag");
+    wallShader = CompileShader("Shaders/wall.vert", "Shaders/wall.frag");
     
     InitializeLiquidBuffers();
     InitializeWallBuffers();

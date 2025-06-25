@@ -13,16 +13,16 @@ find_package(Boost REQUIRED COMPONENTS system)
 
 # Create executable
 add_executable(CppLiquid
-    src/main.cpp
-    src/Renderer.cpp
-    src/LiquidSimulation.cpp
-    src/Camera.cpp
-    src/Wall.cpp
+    Src/main.cpp
+    Src/Renderer.cpp
+    Src/LiquidSimulation.cpp
+    Src/Camera.cpp
+    Src/Wall.cpp
 )
 
 # Include directories
 target_include_directories(CppLiquid PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/Include
 )
 
 # Link libraries
@@ -38,5 +38,9 @@ target_link_libraries(CppLiquid PRIVATE
 # Copy shaders to build directory
 add_custom_command(TARGET CppLiquid POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/shaders $<TARGET_FILE_DIR:CppLiquid>/shaders
+    ${CMAKE_SOURCE_DIR}/Shaders $<TARGET_FILE_DIR:CppLiquid>/Shaders
 )
+
+# Enable testing
+enable_testing()
+add_subdirectory(Test)

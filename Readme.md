@@ -4,10 +4,12 @@ A C++23 OpenGL application that simulates multi-colored blob-based liquids in a 
 
 ## Features
 - Blob-based liquid simulation with multiple colored particle groups
-- 3D walls bounding the simulation area
+- 3D walls bounding the simulation area with aesthetic lighting
 - Top-down camera view
 - Real-time physics simulation with pressure and viscosity forces
 - Particle-particle and particle-wall collision detection
+- 60Hz V-Sync enabled animation
+- GPU-accelerated rendering with OpenGL 4.5
 
 ## Dependencies
 - C++23 compiler
@@ -20,15 +22,42 @@ A C++23 OpenGL application that simulates multi-colored blob-based liquids in a 
 
 ## Building
 ```bash
+./b
+```
+
+Or manually:
+```bash
 mkdir build
 cd build
-cmake ..
-make
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make -j$(nproc)
 ```
 
 ## Running
 ```bash
-./CppLiquid
+./r [options]
 ```
 
-The simulation will open in a window showing colored liquid blobs bounded by 3D walls from a top-down perspective.
+Or directly:
+```bash
+./build/CppLiquid [options]
+```
+
+### Command Line Options
+- `--width <width>` - Set window width (default: 1280)
+- `--height <height>` - Set window height (default: 720)
+- `--help` - Show help message
+
+### Examples
+```bash
+# Run with default settings
+./r
+
+# Run with custom window size
+./r --width 1920 --height 1080
+
+# Run fullscreen-sized
+./r --width 2560 --height 1440
+```
+
+The simulation will open in a window showing colored liquid blobs bounded by 3D walls from a top-down perspective. The walls feature aesthetically pleasing off-angle lighting for better visual depth.
