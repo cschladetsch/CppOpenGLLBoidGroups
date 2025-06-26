@@ -1,0 +1,219 @@
+#!/bin/bash
+
+echo "?? Updating C++ Liquid Simulation files for full window usage..."
+
+# Create Include/Config.h
+echo "?? Creating Include/Config.h..."
+cat > Include/Config.h << 'EOF'
+#pragma once
+
+#include <nlohmann/json.hpp>
+#include <glm/glm.hpp>
+#include <string>
+
+using json = nlohmann::json;
+
+struct Config {
+    // Simulation - much larger area to fill entire screen
+    float width = 120.0f;         // Much wider 
+    float height = 80.0f;         // Much taller
+    int particleCount = 25000;    
+    
+    // Physics
+    float gravity = -12.0f;       
+    float damping = 0.98f;        
+    
+    // Camera - positioned to see massive area and fill entire window
+    glm::vec3 cameraPos = glm::vec3(60.0f, 40.0f, 100.0f);  // Much further back
+    glm::vec3 cameraTarget = glm::vec3(60.0f, 40.0f, 0.0f); // Center of large area
+    
+    // Load from JSON file, fallback to defaults if missing
+    static Config Load(const std::string& filename = "config.json");
+    
+    // Save to JSON file
+    void Save(const std::string& filename = "config.json") const;
+};
+EOF
+
+# Create Source/Config.cpp
+echo "?? Creating Source/Config.cpp..."
+cat > Source/Config.cpp << 'EOF'
+#include "Config.h"
+#include <fstream>
+#include <iostream>
+
+// Helper functions for glm::vec3 JSON conversion
+void to_json(json& j, const glm::vec3& v) {
+    j = {v.x, v.y, v.z};
+}
+
+void from_json(const json& j, glm::vec3& v) {
+    v.x = j[0]; v.y = j[1]; v.z = j[2];
+}
+
+Config Config::Load(const std::string& filename) {
+    Config config;
+    
+    try {
+        std::ifstream file(filename);
+        if (!file.is_open()) {
+            std::cout << "Config file not found, using defaults\n";
+            return config;
+        }
+        
+        json j;
+        file >> j;
+        
+        // Load values if they exist, keep defaults otherwise
+        if (j.contains("width")) config.width = j["width"];
+        if (j.contains("height")) config.height = j["height"];
+        if (j.contains("particleCount")) config.particleCount = j["particleCount"];
+        if (j.contains("gravity")) config.gravity = j["gravity"];
+        if (j.contains("damping")) config.damping = j["damping"];
+        if (j.contains("cameraPos")) config.cameraPos = j["cameraPos"];
+        if (j.contains("cameraTarget")) config.cameraTarget = j["cameraTarget"];
+        
+        std::cout << "Loaded config: " << config.particleCount << " particles\n";
+    }
+    catch (const std::exception& e) {
+        std::cout << "Config error: " << e.what() << ", using defaults\n";
+    }
+    
+    return config;
+}
+
+void Config::Save(const std::string& filename) const {
+    try {
+        json j = {
+            {"width", width},
+            {"height", height},
+            {"particleCount", particleCount},
+            {"gravity", gravity},
+            {"damping", damping},
+            {"cameraPos", cameraPos},
+            {"cameraTarget", cameraTarget}
+        };
+        
+        std::ofstream file(filename);
+        file << j.dump(2);
+        std::cout << "Config saved to " << filename << "\n";
+    }
+    catch (const std::exception& e) {
+        std::cout << "Failed to save config: " << e.what() << "\n";
+    }
+}
+EOF
+
+# Update Include/Camera.h
+echo "?? Updating Include/Camera.h..."
+cat > Include/Camera.h << 'EOF'
+#pragma once
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+class Camera {
+public:
+    explicit Camera(const glm::vec3& position = glm::vec3(0.0f, 5.0f, 10.0f));
+    ~Camera() = default;
+
+    // View controls
+    void SetTopDownView();
+    void SetPosition(const glm::vec3& position) { position_ = position; UpdateViewMatrix(); }
+    void SetTarget(const glm::vec3& target) { target_ = target; UpdateViewMatrix(); }
+    void SetUp(const glm::vec3& up) { up_ = up; UpdateViewMatrix(); }
+
+    // Matrix getters
+    glm::mat4 GetViewMatrix() const { return viewMatrix_; }
+    glm::mat4 GetProjectionMatrix(float aspectRatio) const;
+
+    // Getters
+    const glm::vec3& GetPosition() const { return position_; }
+    const glm::vec3& GetTarget() const { return target_; }
+    const glm::vec3& GetUp() const { return up_; }
+
+    // Camera parameters - wider FOV for full window usage
+    void SetFOV(float fov) { fov_ = fov; UpdateProjection(); }
+    void SetNearPlane(float nearPlane) { nearPlane_ = nearPlane; UpdateProjection(); }
+    void SetFarPlane(float farPlane) { farPlane_ = farPlane; UpdateProjection(); }
+    void SetAspectRatio(float aspect) { aspectRatio_ = aspect; UpdateProjection(); }
+
+private:
+    glm::vec3 position_;
+    glm::vec3 target_;
+    glm::vec3 up_;
+    
+    glm::mat4 viewMatrix_;
+    glm::mat4 projectionMatrix_;
+    
+    // Projection parameters - wider FOV to fill screen
+    float fov_{60.0f};            // Increased from 45 to 60 degrees
+    float aspectRatio_{16.0f/9.0f};
+    float nearPlane_{0.1f};
+    float farPlane_{200.0f};      // Increased far plane
+    
+    void UpdateViewMatrix();
+    void UpdateProjection();
+};
+EOF
+
+# Update Source/Camera.cpp
+echo "?? Updating Source/Camera.cpp..."
+cat > Source/Camera.cpp << 'EOF'
+#include "Camera.h"
+
+Camera::Camera(const glm::vec3& position)
+    : position_(position), target_(0.0f, 0.0f, 0.0f), up_(0.0f, 1.0f, 0.0f) {
+    UpdateViewMatrix();
+    UpdateProjection();
+}
+
+void Camera::SetTopDownView() {
+    position_ = glm::vec3(0.0f, 20.0f, 0.0f);
+    target_ = glm::vec3(0.0f, 0.0f, 0.0f);
+    up_ = glm::vec3(0.0f, 0.0f, -1.0f);
+    UpdateViewMatrix();
+}
+
+glm::mat4 Camera::GetProjectionMatrix(float aspectRatio) const {
+    // Always recalculate with current aspect ratio for proper scaling
+    return glm::perspective(glm::radians(fov_), aspectRatio, nearPlane_, farPlane_);
+}
+
+void Camera::UpdateViewMatrix() {
+    viewMatrix_ = glm::lookAt(position_, target_, up_);
+}
+
+void Camera::UpdateProjection() {
+    projectionMatrix_ = glm::perspective(glm::radians(fov_), aspectRatio_, nearPlane_, farPlane_);
+}
+EOF
+
+# Update config.json
+echo "?? Updating config.json..."
+cat > config.json << 'EOF'
+{
+  "width": 120.0,
+  "height": 80.0,
+  "particleCount": 25000,
+  "gravity": -12.0,
+  "damping": 0.98,
+  "cameraPos": [60.0, 40.0, 100.0],
+  "cameraTarget": [60.0, 40.0, 0.0]
+}
+EOF
+
+echo "? All files updated successfully!"
+echo ""
+echo "?? Files updated:"
+echo "  - Include/Config.h (new)"
+echo "  - Source/Config.cpp (new)"
+echo "  - Include/Camera.h (updated)"
+echo "  - Source/Camera.cpp (updated)"
+echo "  - config.json (updated)"
+echo ""
+echo "?? Next steps:"
+echo "1. Run: ./b"
+echo "2. Run: ./r"
+echo ""
+echo "The simulation should now use the full window space with brighter particles!"

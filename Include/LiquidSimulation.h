@@ -29,6 +29,9 @@ public:
 
   const std::vector<LiquidParticle> &GetParticles() const { return particles; }
   const std::vector<Wall> &GetWalls() const { return walls; }
+  size_t GetParticleCount() const { return particles.size(); }
+  void SetGravity(const glm::vec3& g) { gravity = g.y; }
+  void SetDamping(float d) { damping = d; }
 
 private:
   void InitializeParticles();

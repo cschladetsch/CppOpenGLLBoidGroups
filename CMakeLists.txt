@@ -13,9 +13,13 @@ find_package(Boost REQUIRED COMPONENTS system)
 find_package(GTest REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GLFW3 REQUIRED glfw3)
+find_package(OpenMP REQUIRED)
 
 # Find GLM (header-only library)
 find_path(GLM_INCLUDE_DIR glm/glm.hpp)
+
+# Find nlohmann/json
+find_package(nlohmann_json REQUIRED)
 
 # Create a shared library with all core functionality (excluding main.cpp)
 add_library(CppLiquidCore STATIC
@@ -23,6 +27,7 @@ add_library(CppLiquidCore STATIC
     Source/Camera.cpp
     Source/Wall.cpp
     Source/Renderer.cpp
+    Source/Config.cpp
 )
 
 # Set include directories for the core library
@@ -39,6 +44,8 @@ target_link_libraries(CppLiquidCore PUBLIC
     ${GLEW_LIBRARIES}
     ${Boost_LIBRARIES}
     ${GLFW3_LIBRARIES}
+    nlohmann_json::nlohmann_json
+    OpenMP::OpenMP_CXX
 )
 
 # Compiler flags

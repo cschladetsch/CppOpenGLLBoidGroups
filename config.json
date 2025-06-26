@@ -1,0 +1,9 @@
+{
+  "width": 120.0,
+  "height": 80.0,
+  "particleCount": 25000,
+  "gravity": -12.0,
+  "damping": 0.98,
+  "cameraPos": [60.0, 40.0, 100.0],
+  "cameraTarget": [60.0, 40.0, 0.0]
+}
